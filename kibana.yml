@@ -1,0 +1,50 @@
+# Server settings
+server.name: kibana
+server.host: "0.0.0.0"
+
+# Elasticsearch connection
+elasticsearch.hosts: ["http://elasticsearch_container:9200"]
+
+# Security settings (matching the Elasticsearch configuration)
+# xpack.security.enabled: false
+
+# Fleet settings
+xpack.fleet.agents.enabled: true
+xpack.fleet.outputs:
+  - id: "default"
+    name: "default"
+    type: "elasticsearch"
+    hosts: ["http://elasticsearch_container:9200"]
+
+# Encryption keys for Fleet
+xpack.encryptedSavedObjects.encryptionKey: "Su4_wmDRpfBjI-SS1qVUKbep1uMEx6Vo"
+# xpack.fleet.agents.encryptionKey: "another_secure_random_encryption_key_32_chars"
+# xpack.reporting.encryptionKey: "yet_another_secure_random_encryption_key_32_chars"
+xpack.security.encryptionKey: "Su4_wmDRpfBjI-SS1qVUKbep1uMEx6Vo"
+xpack.reporting.encryptionKey: "Su4_wmDRpfBjI-SS1qVUKbep1uMEx6Vo"
+
+
+# Optional: Logging configuration
+logging.root.level: info
+logging.appenders:
+  file:
+    type: file
+    fileName: /usr/share/kibana/logs/kibana.log
+    layout:
+      type: json
+logging.root.appenders: [default, file]
+
+# Optional: Monitoring settings
+monitoring.ui.container.elasticsearch.enabled: true
+
+# Optional: Telemetry settings
+telemetry.enabled: false
+
+# Spaces settings
+xpack.spaces.enabled: true
+
+# # Add service account token for Elasticsearch authentication
+# # elasticsearch.serviceAccountToken: "AAEAAWVsYXN0aWMva2liYW5hL3Rva2VuX19MejBmcFVCS1BfdWFtNkEzMGh5OkRzdEc2WDVRU2lpMms1Szl5Y21vWkE"  # Replace with the actual token value
+
+# elasticsearch.username: "kibana_admin"
+# elasticsearch.password: "kibana_password" the

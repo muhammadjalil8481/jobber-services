@@ -1,0 +1,104 @@
+services:
+  # redis:
+  #   container_name: redis_container
+  #   image: redis:alpine
+  #   restart: always
+  #   ports:
+  #     - '6379:6379'
+  #   command: redis-server --loglevel warning
+  #   volumes:
+  #     - ./docker-volumes/cache:/data
+  # mongodb:
+  #   container_name: mongodb_container
+  #   image: mongo:latest
+  #   restart: always
+  #   ports:
+  #     - '27017:27017'
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #   volumes:
+  #     - ./docker-volumes/mongodb_data:/data/db
+  # mysql:
+  #   container_name: mysql_container
+  #   image: mysql:latest
+  #   restart: always
+  #   ports:
+  #     - '3307:3306'
+  #   environment:
+  #     MYSQL_USER: user
+  #     NYSQL_PASSWORD: password
+  #     MYSQL_ROOT_PASSWORD: password
+  #     MYSQL_DATABASE: auth
+  #   volumes:
+  #     - ./docker-volumes/mysql:/var/lib/mysql
+  # postgres:
+  #   container_name: postgres_container
+  #   image: postgres:latest
+  #   restart: always
+  #   ports:
+  #     - '5432:5432'
+  #   environment:
+  #     POSTGRES_USER: user
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DATABASE: reviews
+  #   volumes:
+  #     - ./docker-volumes/postgresql:/var/lib/postgresql4
+  rabbitmq:
+    container_name: rabbitmq_container
+    image: rabbitmq:management-alpine
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: user       # Default username
+      RABBITMQ_DEFAULT_PASS: password   # Default password
+    ports:
+      - '5672:5672' #AMQP
+      - '15672:15672' #Dashboard
+  elasticsearch:
+    container_name: elasticsearch_container
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    restart: always
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m   # Set memory limits for Elasticsearch
+      bootstrap.memory_lock: "true"
+      discovery.type: single-node       # Single-node mode for development
+      ELASTIC_PASSWORD: password        # Default password for the 'elastic' user
+      xpack.security.enabled: "false"   # Disable security
+      xpack.security.authc.api_key.enabled: "true"
+      # xpack.monitoring.authc.collection.enabled: "true"
+      xpack.security.enrollment.enabled: "true"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./docker-volumes/elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  kibana:
+    container_name: kibana_container
+    image: docker.elastic.co/kibana/kibana:8.17.0 
+    restart: always
+    environment:
+      ELASTICSEARCH_HOSTS: '["http://elasticsearch_container:9200"]'
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      - elasticsearch
+      
+networks:
+  elastic:
+    name: elastic
+
+
+
+    
+    
+
+
+
+  
+

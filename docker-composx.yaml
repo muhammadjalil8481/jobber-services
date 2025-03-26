@@ -1,0 +1,67 @@
+version: '2.2'
+services:
+  # rabbitmq:
+  #   container_name: rabbitmq_container
+  #   image: rabbitmq:management-alpine
+  #   restart: always
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: user       # Default username
+  #     RABBITMQ_DEFAULT_PASS: password   # Default password
+  #   ports:
+  #     - '5672:5672' #AMQP
+  #     - '15672:15672' #Dashboard
+  es-setup:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    volumes:
+      - ./docker-volumes/elasticsearch-data/certs:/usr/share/elasticsearch/config/certs,
+    user: "0"
+    networks:
+      - elastic
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        
+      '
+  elasticsearch:
+    container_name: elasticsearch_container
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    restart: always
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m # Set memory limits for Elasticsearch
+      bootstrap.memory_lock: "true"
+      discovery.type: single-node # Single-node mode for development
+      ELASTIC_PASSWORD: password # Default password for the 'elastic' user
+      xpack.security.enabled: "true" # Enable security
+      xpack.security.authc.api_key.enabled: "true"
+      # xpack.monitoring.authc.collection.enabled: "true"
+      xpack.security.enrollment.enabled: "true"
+    ports:
+      - 9200:9200
+      - 9300:9300
+    volumes:
+      - ./docker-volumes/elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  kibana:
+    container_name: kibana_container
+    image: docker.elastic.co/kibana/kibana:8.17.0
+    restart: always
+    ports:
+      - 5601:5601
+    networks:
+      - elastic
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+    depends_on:
+      es-init:
+        condition: service_completed_successfully
+
+networks:
+  elastic:
+    name: elastic
