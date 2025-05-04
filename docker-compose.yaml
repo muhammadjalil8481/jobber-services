@@ -72,8 +72,6 @@ services:
       - 9300:9300
     volumes:
       - ./docker-volumes/elasticsearch-data:/usr/share/elasticsearch/data
-    networks:
-      - elastic
   kibana:
     container_name: kibana_container
     image: docker.elastic.co/kibana/kibana:8.17.0 
@@ -82,16 +80,33 @@ services:
       ELASTICSEARCH_HOSTS: '["http://elasticsearch_container:9200"]'
     ports:
       - 5601:5601
-    networks:
-      - elastic
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
     depends_on:
       - elasticsearch
-      
-networks:
-  elastic:
-    name: elastic
+  notifications:
+    container_name: notifications_container
+    build:
+      context: ../3-jobber-notification
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - '4001:4001'
+    environment:
+      - ENABLE_APM=0
+      - PORT=4001
+      - NODE_ENV=development
+      - CLIENT_URL=http://localhost:3000
+      - RABBITMQ_ENDPOINT=amqp://user:password@rabbitmq_container:5672
+      - SENDER_EMAIL_NAME=Frederick Orn
+      - SENDER_EMAIL=frederick.orn90@ethereal.email
+      - SENDER_EMAIL_PASSWORD=t42jraCM6KvuDwtKDK
+      - SMTP_HOST=smtp.ethereal.email
+      - SMTP_PORT=586
+      - ELASTIC_SEARCH_URL=http://elasticsearch:9200
+    depends_on:
+      - rabbitmq
+      - elasticsearch
 
 
 
