@@ -19,19 +19,19 @@ services:
   #     MONGO_INITDB_ROOT_PASSWORD: password
   #   volumes:
   #     - ./docker-volumes/mongodb_data:/data/db
-  # mysql:
-  #   container_name: mysql_container
-  #   image: mysql:latest
-  #   restart: always
-  #   ports:
-  #     - '3307:3306'
-  #   environment:
-  #     MYSQL_USER: user
-  #     NYSQL_PASSWORD: password
-  #     MYSQL_ROOT_PASSWORD: password
-  #     MYSQL_DATABASE: auth
-  #   volumes:
-  #     - ./docker-volumes/mysql:/var/lib/mysql
+  auth_database:
+    container_name: auth_db_container
+    image: mysql:latest
+    restart: always
+    ports:
+      - '3307:3306'
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: auth
+    volumes:
+      - ./docker-volumes/mysql:/var/lib/mysql
   # postgres:
   #   container_name: postgres_container
   #   image: postgres:latest
